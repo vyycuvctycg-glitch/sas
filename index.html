@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUSPLAY MAX · Soundboard MyInstants + Chiki Briki</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+:root{--bg:#0b0d10;--surface:#14171c;--surface2:#1e2228;--accent:#ff2e6f;--accent2:#7b2ff7;--text:#eef2f6;--text-dim:#9aa4b2;--border:#2c313a;--radius:12px}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:var(--surface2)}::-webkit-scrollbar-thumb{background:#3a3f4b;border-radius:12px}::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.5rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo i{font-size:1.7rem}
+.stats{color:var(--text-dim);font-size:.85rem;background:var(--surface2);padding:6px 16px;border-radius:30px;border:1px solid var(--border)}
+.stats strong{color:var(--text)}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:12px 22px;background:var(--surface);border-bottom:1px solid var(--border)}
+.search-box{display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:30px;padding:2px 6px 2px 16px;flex:1 1 260px;max-width:480px}
+.search-box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,46,111,.2)}
+.search-box i{color:var(--text-dim)}
+.search-box input{width:100%;padding:10px;background:transparent;border:none;outline:none;color:var(--text);font-size:.9rem}
+.search-box input::placeholder{color:var(--text-dim)}
+.search-box button{background:var(--accent);border:none;color:#fff;padding:8px 18px;border-radius:30px;font-weight:600;cursor:pointer;transition:.2s}
+.search-box button:hover{background:#e0255e}
+.categories{display:flex;gap:6px;flex-wrap:wrap}
+.cat-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);padding:7px 14px;border-radius:30px;font-size:.78rem;font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap}
+.cat-btn:hover{border-color:var(--accent);color:var(--text)}
+.cat-btn.active{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#fff;box-shadow:0 4px 15px rgba(255,46,111,.4)}
+.player{display:flex;align-items:center;gap:16px;padding:10px 22px;background:var(--surface2);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.now-playing{display:flex;align-items:center;gap:10px;flex:1;min-width:180px}
+.now-playing .icon{width:38px;height:38px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff}
+.now-playing .label{font-size:.65rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);font-weight:600}
+.now-playing .title{font-weight:700;font-size:.9rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+.player-controls{display:flex;align-items:center;gap:12px}
+.play-btn{width:42px;height:42px;border-radius:50%;background:var(--accent);border:none;color:#fff;font-size:1.1rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;box-shadow:0 4px 18px rgba(255,46,111,.5)}
+.play-btn:hover{transform:scale(1.05);background:#e0255e}
+.volume-slider{display:flex;align-items:center;gap:6px;color:var(--text-dim)}
+.volume-slider input{width:90px;accent-color:var(--accent);cursor:pointer}
+.grid-container{flex:1;overflow-y:auto;padding:18px 22px 40px;background:radial-gradient(circle at 20% 30%,#1a1e26,#0b0d10 80%)}
+.grid-header{display:flex;justify-content:space-between;align-items:center;color:var(--text-dim);font-size:.85rem;margin-bottom:14px}
+.grid-header .badge{background:var(--surface2);padding:5px 14px;border-radius:30px;border:1px solid var(--border);font-weight:600;color:var(--text)}
+.sound-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.sound-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:.2s;position:relative;overflow:hidden;box-shadow:0 4px 10px rgba(0,0,0,.3);user-select:none;min-height:100px}
+.sound-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0;transition:.2s}
+.sound-card:hover{border-color:#3f4552;transform:translateY(-3px);box-shadow:0 12px 25px rgba(0,0,0,.6);background:#181c22}
+.sound-card:hover::before{opacity:1}
+.sound-card:active{transform:scale(.96)}
+.sound-card.playing{border-color:var(--accent);background:#1f1a22;box-shadow:0 0 20px rgba(255,46,111,.3)}
+.sound-card .emoji{font-size:1.8rem;line-height:1}
+.sound-card .name{font-size:.72rem;font-weight:600;text-align:center;color:var(--text);line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 4px}
+.sound-card .cat-tag{font-size:.58rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text-dim);background:var(--surface2);padding:2px 8px;border-radius:20px;border:1px solid var(--border);font-weight:600}
+.sound-card .play-indicator{position:absolute;top:8px;right:8px;font-size:.7rem;color:var(--accent);opacity:0;transition:.2s}
+.sound-card.playing .play-indicator{opacity:1;animation:pulse 1.2s infinite}
+.sound-card.chiki-highlight{border-color:#7b2ff7;background:linear-gradient(135deg,#1a1025,#1f1a22);box-shadow:0 0 20px rgba(123,47,247,.4)}
+.sound-card.chiki-highlight::before{background:linear-gradient(90deg,#7b2ff7,#ff2e6f);opacity:1}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.2)}}
+.loading{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-dim)}
+.loading i{font-size:2.5rem;margin-bottom:16px;opacity:.5}
+.load-more{display:flex;justify-content:center;padding:18px 0 10px}
+.load-more button{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:12px 36px;border-radius:30px;font-weight:600;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:8px}
+.load-more button:hover{background:var(--accent);border-color:var(--accent);box-shadow:0 4px 20px rgba(255,46,111,.4)}
+@media(max-width:700px){.header{padding:10px 14px}.logo{font-size:1.2rem}.toolbar{padding:10px 14px}.search-box{flex:1 1 100%;max-width:100%}.sound-grid{grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px}.sound-card{min-height:85px;padding:10px 4px 8px}.sound-card .emoji{font-size:1.4rem}.sound-card .name{font-size:.62rem}.now-playing .title{max-width:130px}}
+</style>
+</head>
+<body>
+<header class="header">
+<div class="logo"><i class="fas fa-gamepad"></i> NEXUSPLAY MAX</div>
+<div class="stats"><strong id="totalSounds">0</strong> sons · MyInstants + Chiki Briki</div>
+</header>
+
+<div class="toolbar">
+<div class="search-box">
+<i class="fas fa-search"></i>
+<input type="text" id="searchInput" placeholder="Rechercher (chiki briki, vine boom, bruh...)">
+<button id="searchBtn">Chercher</button>
+</div>
+<div class="categories" id="categoryContainer">
+<button class="cat-btn active" data-cat="memes">😂 Mèmes</button>
+<button class="cat-btn" data-cat="chiki">🇷🇺 Chiki Briki</button>
+<button class="cat-btn" data-cat="games">🎮 Gaming</button>
+<button class="cat-btn" data-cat="anime">🌸 Anime</button>
+<button class="cat-btn" data-cat="movies">🎬 Films</button>
+<button class="cat-btn" data-cat="reactions">😱 Réactions</button>
+<button class="cat-btn" data-cat="tiktok trends">📈 TikTok</button>
+<button class="cat-btn" data-cat="sound effects">🔊 Effets</button>
+<button class="cat-btn" data-cat="viral">🔥 Viral</button>
+<button class="cat-btn" data-cat="music">🎵 Musique</button>
+</div>
+</div>
+
+<div class="player">
+<div class="now-playing">
+<div class="icon"><i class="fas fa-music"></i></div>
+<div><div class="label">EN COURS</div><div class="title" id="nowPlayingTitle">Aucun son sélectionné</div></div>
+</div>
+<div class="player-controls">
+<button class="play-btn" id="playPauseBtn"><i class="fas fa-play"></i></button>
+<div class="volume-slider"><i class="fas fa-volume-up"></i><input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.8"></div>
+</div>
+</div>
+
+<div class="grid-container">
+<div class="grid-header">
+<span id="resultsCount">Chargement...</span>
+<span class="badge" id="activeFilter">Mèmes</span>
+</div>
+<div class="sound-grid" id="soundGrid">
+<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Chargement des sons...</p></div>
+</div>
+<div class="load-more" id="loadMoreContainer" style="display:none">
+<button id="loadMoreBtn"><i class="fas fa-chevron-down"></i> Charger plus</button>
+</div>
+</div>
+
+<audio id="audioPlayer" preload="auto"></audio>
+
+<script>
+// ============================================================
+//  CONFIGURATION API
+// ============================================================
+const API_BASE = 'https://myinstants-api.vercel.app/api';
+const SOUNDS_PER_PAGE = 80;
+
+let currentPage = 0;
+let currentCategory = 'memes';
+let currentSearch = '';
+let totalResults = 0;
+let currentAudio = null;
+let currentPlayingId = null;
+let isPlaying = false;
+let allLoadedSounds = [];
+
+const soundGrid = document.getElementById('soundGrid');
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+const categoryContainer = document.getElementById('categoryContainer');
+const resultsCount = document.getElementById('resultsCount');
+const activeFilter = document.getElementById('activeFilter');
+const totalSoundsEl = document.getElementById('totalSounds');
+const nowPlayingTitle = document.getElementById('nowPlayingTitle');
+const playPauseBtn = document.getElementById('playPauseBtn');
+const volumeSlider = document.getElementById('volumeSlider');
+const audioPlayer = document.getElementById('audioPlayer');
+const loadMoreBtn = document.getElementById('loadMoreBtn');
+const loadMoreContainer = document.getElementById('loadMoreContainer');
+
+// ============================================================
+//  SONS CHIKI BRIKI (références S.T.A.L.K.E.R. + TikTok)
+// ============================================================
+const CHIKI_SOUNDS = [
+    { 
+        name: 'Chiki Briki (STALKER Original)', 
+        category: 'chiki', 
+        emoji: '🇷🇺', 
+        url: 'https://www.myinstants.com/media/sounds/cheeki-breeki.mp3' 
+    },
+    { 
+        name: 'EFT Chiki-briki palchik vykin', 
+        category: 'chiki', 
+        emoji: '🎯', 
+        url: 'https://www.myinstants.com/media/sounds/eft-chiki-briki-palchik-vykin-25359.mp3' 
+    },
+    { 
+        name: 'Allan Chiki Brrr (TikTok)', 
+        category: 'chiki', 
+        emoji: '🤗', 
+        url: 'https://www.myinstants.com/media/sounds/allan-chiki-brrr.mp3' 
+    },
+    { 
+        name: 'A nu chiki-briki i v damki', 
+        category: 'chiki', 
+        emoji: '⚔️', 
+        url: 'https://www.myinstants.com/media/sounds/a-nu-chiki-briki-i-v-damki.mp3' 
+    },
+    { 
+        name: 'Chiki Briki Hardbass', 
+        category: 'chiki', 
+        emoji: '🔊', 
+        url: 'https://www.myinstants.com/media/sounds/cheeki-breeki-hardbass.mp3' 
+    },
+    { 
+        name: 'STALKER Chiki Briki v Damki', 
+        category: 'chiki', 
+        emoji: '☢️', 
+        url: 'https://www.myinstants.com/media/sounds/chiki-briki-v-damki.mp3' 
+    },
+    { 
+        name: 'Chiki Briki (Bass Boosted)', 
+        category: 'chiki', 
+        emoji: '🎚️', 
+        url: 'https://www.myinstants.com/media/sounds/chiki-briki-bass-boosted.mp3' 
+    },
+    { 
+        name: 'Scav Cheeki Breeki', 
+        category: 'chiki', 
+        emoji: '💀', 
+        url: 'https://www.myinstants.com/media/sounds/tarkov-scav-cheeki-breeki.mp3' 
+    },
+    { 
+        name: 'Cheeki Breekie', 
+        category: 'chiki', 
+        emoji: '👽', 
+        url: 'https://www.myinstants.com/media/sounds/cheeki-breekie.mp3' 
+    },
+    { 
+        name: 'Crazy Tarkov Scav Cheeki Breeki', 
+        category: 'chiki', 
+        emoji: '🌀', 
+        url: 'https://www.myinstants.com/media/sounds/crazy-tarkov-scav-cheeki-breeki.mp3' 
+    }
+];
+
+// ============================================================
+//  FALLBACK : 40 SONS MYINSTANTS CÉLÈBRES
+// ============================================================
+const FALLBACK_SOUNDS = [
+    { name: 'Vine Boom', category: 'memes', emoji: '💥', url: 'https://www.myinstants.com/media/sounds/vine-boom.mp3' },
+    { name: 'Bruh', category: 'memes', emoji: '😐', url: 'https://www.myinstants.com/media/sounds/movie_1.mp3' },
+    { name: 'MLG Airhorn', category: 'memes', emoji: '📢', url: 'https://www.myinstants.com/media/sounds/airhorn.mp3' },
+    { name: 'Sad Violin', category: 'memes', emoji: '🎻', url: 'https://www.myinstants.com/media/sounds/sad-violin.mp3' },
+    { name: 'Wilhelm Scream', category: 'movies', emoji: '😱', url: 'https://www.myinstants.com/media/sounds/wilhelm_scream.mp3' },
+    { name: 'Ba Dum Tss', category: 'memes', emoji: '🥁', url: 'https://www.myinstants.com/media/sounds/ba-dum-tss.mp3' },
+    { name: 'Windows XP Error', category: 'memes', emoji: '💻', url: 'https://www.myinstants.com/media/sounds/error.mp3' },
+    { name: 'Rick Roll', category: 'music', emoji: '🎵', url: 'https://www.myinstants.com/media/sounds/rick-roll.mp3' },
+    { name: 'Coffin Dance', category: 'memes', emoji: '⚰️', url: 'https://www.myinstants.com/media/sounds/astronomia.mp3' },
+    { name: 'Oof Roblox', category: 'games', emoji: '💀', url: 'https://www.myinstants.com/media/sounds/roblox-oof.mp3' },
+    { name: 'Minecraft Level Up', category: 'games', emoji: '🎮', url: 'https://www.myinstants.com/media/sounds/minecraft-level-up.mp3' },
+    { name: 'Nyan Cat', category: 'memes', emoji: '🌈', url: 'https://www.myinstants.com/media/sounds/nyan-cat.mp3' },
+    { name: 'Among Us Role Reveal', category: 'games', emoji: '🔪', url: 'https://www.myinstants.com/media/sounds/among-us-role-reveal.mp3' },
+    { name: 'Anime Wow', category: 'anime', emoji: '😲', url: 'https://www.myinstants.com/media/sounds/anime-wow-sound-effect.mp3' },
+    { name: 'Emotional Damage', category: 'memes', emoji: '💔', url: 'https://www.myinstants.com/media/sounds/emotional-damage-meme.mp3' },
+    { name: 'Dun Dun Duuun', category: 'movies', emoji: '🎬', url: 'https://www.myinstants.com/media/sounds/dun-dun-duuun.mp3' },
+    { name: 'Metal Pipe', category: 'memes', emoji: '🔧', url: 'https://www.myinstants.com/media/sounds/metal-pipe-falling-sound-effect.mp3' },
+    { name: 'Sus Amogus', category: 'games', emoji: '👽', url: 'https://www.myinstants.com/media/sounds/among-us-sus.mp3' },
+    { name: 'Giga Chad', category: 'memes', emoji: '💪', url: 'https://www.myinstants.com/media/sounds/gigachad.mp3' },
+    { name: 'Fanum Tax', category: 'tiktok trends', emoji: '🍔', url: 'https://www.myinstants.com/media/sounds/fanum-tax.mp3' },
+    { name: 'Oh No Short', category: 'memes', emoji: '😬', url: 'https://www.myinstants.com/media/sounds/oh-no-short.mp3' },
+    { name: 'Wrong Answer Buzzer', category: 'reactions', emoji: '❌', url: 'https://www.myinstants.com/media/sounds/wrong-answer-buzzer.mp3' },
+    { name: 'Baby Laughing', category: 'memes', emoji: '👶', url: 'https://www.myinstants.com/media/sounds/baby-laughing-meme.mp3' },
+    { name: 'Keyboard Typing', category: 'sound effects', emoji: '⌨️', url: 'https://www.myinstants.com/media/sounds/keyboard-typing-sound.mp3' },
+    { name: 'Crickets Chirping', category: 'reactions', emoji: '🦗', url: 'https://www.myinstants.com/media/sounds/awkward-silence-crickets-chirping-meme.mp3' },
+    { name: 'Why Are You Running', category: 'memes', emoji: '🏃', url: 'https://www.myinstants.com/media/sounds/why-are-you-running.mp3' },
+    { name: 'Law And Order Dun Dun', category: 'movies', emoji: '⚖️', url: 'https://www.myinstants.com/media/sounds/law-and-order-dun-dun.mp3' },
+    { name: 'To Be Continued Jojo', category: 'anime', emoji: '⏳', url: 'https://www.myinstants.com/media/sounds/to-be-continued-jojo.mp3' },
+    { name: 'Inception Bwaaah', category: 'movies', emoji: '🌌', url: 'https://www.myinstants.com/media/sounds/inception-bwaaah.mp3' },
+    { name: 'Jeopardy Theme', category: 'tv', emoji: '📺', url: 'https://www.myinstants.com/media/sounds/jeopardy-theme-song.mp3' },
+    { name: 'Metal Gear Alert', category: 'games', emoji: '🚨', url: 'https://www.myinstants.com/media/sounds/metal-gear-solid-alert.mp3' },
+    { name: 'GTA Mission Complete', category: 'games', emoji: '🏆', url: 'https://www.myinstants.com/media/sounds/gta-sa-mission-complete.mp3' },
+    { name: 'Bwaaaaaaaaaah', category: 'memes', emoji: '🌊', url: 'https://www.myinstants.com/media/sounds/bwaaaaaaaaaah.mp3' },
+    { name: 'Windows Shutdown', category: 'sound effects', emoji: '🖥️', url: 'https://www.myinstants.com/media/sounds/windows-xp-shutdown.mp3' },
+    { name: 'Discord Ping', category: 'sound effects', emoji: '🔔', url: 'https://www.myinstants.com/media/sounds/discord-ping.mp3' },
+    { name: 'Fortnite Death', category: 'games', emoji: '💀', url: 'https://www.myinstants.com/media/sounds/fortnite-death-sound.mp3' },
+    { name: 'Minecraft Hurt', category: 'games', emoji: '💔', url: 'https://www.myinstants.com/media/sounds/minecraft-hurt.mp3' },
+    { name: 'Nokia Ringtone', category: 'music', emoji: '📱', url: 'https://www.myinstants.com/media/sounds/nokia-arabic-ringtone.mp3' },
+    { name: 'Leeroy Jenkins', category: 'games', emoji: '⚔️', url: 'https://www.myinstants.com/media/sounds/leeroy-jenkins.mp3' },
+    { name: 'Taco Bell Bong', category: 'sound effects', emoji: '🔔', url: 'https://www.myinstants.com/media/sounds/taco-bell-bong-sfx.mp3' },
+];
+
+// ============================================================
+//  CHARGEMENT DEPUIS L'API MYINSTANTS
+// ============================================================
+async function fetchSoundsFromAPI(page = 0, category = '', query = '') {
+    let url;
+    if (query) {
+        url = `${API_BASE}/search?q=${encodeURIComponent(query)}`;
+    } else if (category && category !== 'chiki') {
+        url = `${API_BASE}/category/${encodeURIComponent(category)}`;
+    } else {
+        url = `${API_BASE}/trending`;
+    }
+    
+    try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        
+        let sounds = [];
+        if (Array.isArray(data)) {
+            sounds = data;
+        } else if (data.results && Array.isArray(data.results)) {
+            sounds = data.results;
+        } else if (data.data && Array.isArray(data.data)) {
+            sounds = data.data;
+        } else if (data.sounds && Array.isArray(data.sounds)) {
+            sounds = data.sounds;
+        } else if (typeof data === 'object') {
+            for (const key in data) {
+                if (Array.isArray(data[key]) && data[key].length > 0) {
+                    sounds = data[key];
+                    break;
+                }
+            }
+        }
+        
+        return sounds.map(s => ({
+            name: s.title || s.name || s.slug || 'Son',
+            category: s.category || category || 'meme',
+            emoji: '🎵',
+            url: s.audioUrl || s.url || s.sound || s.mp3 || s.file
+        })).filter(s => s.url);
+        
+    } catch (err) {
+        console.warn('API MyInstants indisponible, fallback local:', err.message);
+        return null;
+    }
+}
+
+// ============================================================
+//  AFFICHAGE DES CARTES
+// ============================================================
+function renderSoundCards(sounds) {
+    soundGrid.innerHTML = '';
+    if (!sounds || sounds.length === 0) {
+        soundGrid.innerHTML = '<div class="loading"><i class="fas fa-search"></i><p>Aucun son trouvé</p></div>';
+        return;
+    }
+    
+    sounds.forEach((sound, idx) => {
+        const card = document.createElement('div');
+        card.className = 'sound-card';
+        if (sound.category === 'chiki') {
+            card.classList.add('chiki-highlight');
+        }
+        card.dataset.id = `sound_${currentPage}_${idx}`;
+        card.dataset.url = sound.url;
+        card.innerHTML = `
+            <span class="play-indicator"><i class="fas fa-volume-up"></i></span>
+            <span class="emoji">${sound.emoji || '🎵'}</span>
+            <span class="name">${sound.name}</span>
+            <span class="cat-tag">${sound.category || ''}</span>
+        `;
+        card.addEventListener('click', () => playSound(card));
+        soundGrid.appendChild(card);
+    });
+    
+    resultsCount.textContent = `${sounds.length} sons affichés`;
+    totalSoundsEl.textContent = sounds.length;
+}
+
+// ============================================================
+//  LECTURE AUDIO
+// ============================================================
+function playSound(card) {
+    const url = card.dataset.url;
+    if (!url) return;
+    
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
+    
+    document.querySelectorAll('.sound-card.playing').forEach(el => el.classList.remove('playing'));
+    card.classList.add('playing');
+    
+    currentAudio = new Audio(url);
+    currentAudio.volume = parseFloat(volumeSlider.value);
+    currentAudio.play().catch(e => {
+        console.warn('Lecture bloquée:', e);
+        nowPlayingTitle.textContent = '⚠️ Cliquez à nouveau pour activer le son';
+    });
+    
+    const name = card.querySelector('.name').textContent;
+    const emoji = card.querySelector('.emoji').textContent;
+    nowPlayingTitle.textContent = `${emoji} ${name}`;
+    currentPlayingId = card.dataset.id;
+    isPlaying = true;
+    updatePlayPauseIcon();
+    
+    currentAudio.addEventListener('ended', () => {
+        isPlaying = false;
+        updatePlayPauseIcon();
+        card.classList.remove('playing');
+        nowPlayingTitle.textContent = 'Aucun son sélectionné';
+        currentPlayingId = null;
+        currentAudio = null;
+    });
+    
+    currentAudio.addEventListener('error', () => {
+        console.warn('Erreur audio:', url);
+        card.classList.remove('playing');
+        nowPlayingTitle.textContent = '❌ Impossible de charger ce son';
+    });
+}
+
+function updatePlayPauseIcon() {
+    const icon = playPauseBtn.querySelector('i');
+    icon.className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
+}
+
+// ============================================================
+//  CONTRÔLES
+// ============================================================
+playPauseBtn.addEventListener('click', () => {
+    if (!currentAudio) return;
+    if (isPlaying) {
+        currentAudio.pause();
+        isPlaying = false;
+    } else {
+        currentAudio.play();
+        isPlaying = true;
+    }
+    updatePlayPauseIcon();
+});
+
+volumeSlider.addEventListener('input', (e) => {
+    if (currentAudio) currentAudio.volume = parseFloat(e.target.value);
+});
+
+searchBtn.addEventListener('click', () => {
+    currentSearch = searchInput.value.trim();
+    currentCategory = '';
+    currentPage = 0;
+    activeFilter.textContent = currentSearch || 'Recherche';
+    loadSounds();
+});
+
+searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        searchBtn.click();
+    }
+});
+
+categoryContainer.addEventListener('click', (e) => {
+    const btn = e.target.closest('.cat-btn');
+    if (!btn) return;
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCategory = btn.dataset.cat;
+    currentSearch = '';
+    currentPage = 0;
+    activeFilter.textContent = btn.textContent.trim();
+    loadSounds();
+});
+
+loadMoreBtn.addEventListener('click', () => {
+    currentPage++;
+    loadSounds(true);
+});
+
+// ============================================================
+//  CHARGEMENT PRINCIPAL
+// ============================================================
+async function loadSounds(append = false) {
+    if (!append) {
+        soundGrid.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Chargement...</p></div>';
+    }
+    
+    let sounds = null;
+    
+    // Si catégorie chiki, on charge les sons dédiés
+    if (currentCategory === 'chiki') {
+        sounds = CHIKI_SOUNDS;
+    } else if (currentSearch && currentSearch.toLowerCase().includes('chiki')) {
+        // Recherche chiki → mélanger les sons chiki avec les résultats API
+        const apiSounds = await fetchSoundsFromAPI(0, '', currentSearch);
+        sounds = [...CHIKI_SOUNDS, ...(apiSounds || [])];
+    } else {
+        try {
+            sounds = await fetchSoundsFromAPI(currentPage, currentCategory, currentSearch);
+        } catch (e) {
+            console.warn('API failed:', e);
+        }
+    }
+    
+    // Fallback local si l'API ne répond pas
+    if (!sounds || sounds.length === 0) {
+        sounds = FALLBACK_SOUNDS.filter(s => {
+            if (currentSearch) return s.name.toLowerCase().includes(currentSearch.toLowerCase());
+            if (currentCategory) return s.category === currentCategory;
+            return true;
+        });
+        
+        if (sounds.length === 0) {
+            sounds = FALLBACK_SOUNDS;
+        }
+    }
+    
+    // Pagination
+    const start = currentPage * SOUNDS_PER_PAGE;
+    const end = start + SOUNDS_PER_PAGE;
+    const pageSounds = sounds.slice(start, end);
+    
+    if (!append) {
+        allLoadedSounds = sounds;
+        renderSoundCards(pageSounds);
+    } else {
+        pageSounds.forEach((sound, idx) => {
+            const card = document.createElement('div');
+            card.className = 'sound-card';
+            if (sound.category === 'chiki') {
+                card.classList.add('chiki-highlight');
+            }
+            card.dataset.id = `sound_${currentPage}_${idx}`;
+            card.dataset.url = sound.url;
+            card.innerHTML = `
+                <span class="play-indicator"><i class="fas fa-volume-up"></i></span>
+                <span class="emoji">${sound.emoji || '🎵'}</span>
+                <span class="name">${sound.name}</span>
+                <span class="cat-tag">${sound.category || ''}</span>
+            `;
+            card.addEventListener('click', () => playSound(card));
+            soundGrid.appendChild(card);
+        });
+        resultsCount.textContent = `${soundGrid.children.length} sons affichés`;
+    }
+    
+    loadMoreContainer.style.display = end < sounds.length ? 'flex' : 'none';
+    loadMoreBtn.innerHTML = `<i class="fas fa-chevron-down"></i> Charger plus (${Math.max(0, sounds.length - end)} restants)`;
+}
+
+// ============================================================
+//  DÉMARRAGE
+// ============================================================
+loadSounds();
+console.log('NEXUSPLAY MAX initialisé · Chiki Briki activé 🇷🇺');
+</script>
+</body>
+</html>
